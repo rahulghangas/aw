@@ -92,6 +92,7 @@ var _ = Describe("Connection pool", func() {
 					_ = NewTCPServer(ctx, ServerOptions{Host: serverAddr1.String()}, clientSignVerifier)
 					_ = NewTCPServer(ctx, ServerOptions{Host: serverAddr2.String()}, clientSignVerifier)
 
+
 					time.Sleep(100 * time.Millisecond)
 
 					// Expect the second send operation failing due to reaching max number of connections
