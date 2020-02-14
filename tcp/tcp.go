@@ -103,7 +103,6 @@ func NewServer(options ServerOptions, logger logrus.FieldLogger, handshaker hand
 // for new connections, spawning each one into a background goroutine so that it
 // can be handled concurrently.
 func (server *Server) Run(ctx context.Context, messages protocol.MessageSender) {
-	server.logger.Debugf("server start listening at %v", server.options.Host)
 	listener, err := net.Listen("tcp", server.options.Host)
 	if err != nil {
 		server.logger.Fatalf("failed to listen on %s: %v", server.options.Host, err)
@@ -119,6 +118,7 @@ func (server *Server) Run(ctx context.Context, messages protocol.MessageSender) 
 		}
 	}()
 
+	server.logger.Infof("server start listening at %v", server.options.Host)
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
