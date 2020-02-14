@@ -31,7 +31,7 @@ var _ = Describe("TCP client and server", func() {
 
 	BeforeEach(func() {
 		// Give enough time for server to clean up between tests
-		time.Sleep(500 * time.Millisecond)
+		time.Sleep(time.Second)
 	})
 
 	Context("when initializing a server", func() {

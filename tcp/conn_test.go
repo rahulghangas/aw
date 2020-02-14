@@ -20,6 +20,11 @@ import (
 
 var _ = Describe("Connection pool", func() {
 
+	BeforeEach(func() {
+		// Give enough time for server to clean up between tests
+		time.Sleep(time.Second)
+	})
+
 	Context("when initializing a ConnPool", func() {
 		It("should set the options to default if not provided", func() {
 			handshaker := handshake.New(NewMockSignVerifier(), handshake.NewGCMSessionManager())
@@ -38,10 +43,7 @@ var _ = Describe("Connection pool", func() {
 			It("should try to connect to it and maintain the connection in the pool", func() {
 				test := func() bool {
 					ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-					defer func() {
-						cancel()
-						time.Sleep(200 * time.Millisecond)
-					}()
+					defer cancel()
 
 					// Initialize a connPool
 					clientSignVerifier := NewMockSignVerifier()
@@ -73,10 +75,7 @@ var _ = Describe("Connection pool", func() {
 			It("return an error when trying to send messages to new receiver", func() {
 				test := func() bool {
 					ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-					defer func() {
-						cancel()
-						time.Sleep(200 * time.Millisecond)
-					}()
+					defer cancel()
 
 					// Initialize a connPool
 					clientSignVerifier := NewMockSignVerifier()
@@ -109,10 +108,7 @@ var _ = Describe("Connection pool", func() {
 			It("should close the connection to release the resources", func() {
 				test := func() bool {
 					ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-					defer func() {
-						cancel()
-						time.Sleep(200 * time.Millisecond)
-					}()
+					defer cancel()
 
 					// Initialize a connPool
 					clientSignVerifier := NewMockSignVerifier()
@@ -154,10 +150,7 @@ var _ = Describe("Connection pool", func() {
 			It("should timeout the handshake process", func() {
 				test := func() bool {
 					ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-					defer func() {
-						cancel()
-						time.Sleep(200 * time.Millisecond)
-					}()
+					defer cancel()
 
 					// Initialize a connPool
 					clientSignVerifier := NewMockSignVerifier()
