@@ -88,7 +88,7 @@ func NewTCPServer(ctx context.Context, options tcp.ServerOptions, clientSignVeri
 	server := tcp.NewServer(options, logrus.New(), handshaker)
 	messageSender := make(chan protocol.MessageOnTheWire, 128)
 	go server.Run(ctx, messageSender)
-	time.Sleep(50 * time.Millisecond)
+	time.Sleep(100 * time.Millisecond)
 
 	return messageSender
 }
