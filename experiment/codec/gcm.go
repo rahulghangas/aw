@@ -15,8 +15,8 @@ type GCMSession struct {
 	gcm   cipher.AEAD
 	rRand *rand.Rand
 	wRand *rand.Rand
-	rBuf  []byte
-	wBuf  []byte
+	// rBuf  []byte
+	wBuf []byte
 }
 
 // NewGCMSession accepts a symmetric secret key and returns a new GCMSession
@@ -34,8 +34,8 @@ func NewGCMSession(key [32]byte) (*GCMSession, error) {
 		gcm:   gcm,
 		rRand: rand.New(rand.NewSource(int64(binary.BigEndian.Uint64(key[:8])))),
 		wRand: rand.New(rand.NewSource(int64(binary.BigEndian.Uint64(key[:8])))),
-		rBuf:  make([]byte, gcm.NonceSize()),
-		wBuf:  make([]byte, gcm.NonceSize()),
+		// rBuf:  make([]byte, gcm.NonceSize()),
+		wBuf: make([]byte, gcm.NonceSize()),
 	}, nil
 }
 
@@ -47,7 +47,7 @@ func GCMEncoder(session *GCMSession, enc Encoder) Encoder {
 		if err != nil {
 			return 0, fmt.Errorf("generating randomness: %v", err)
 		}
-		n, err := enc(w, session.gcm.Seal(nil, session.wBuf, buf, nil))
+		n, err := enc(w, append(session.wBuf, session.gcm.Seal(nil, session.wBuf, buf, nil)...))
 		if err != nil {
 			return n, fmt.Errorf("encoding sealed data: %v", err)
 		}
@@ -57,15 +57,15 @@ func GCMEncoder(session *GCMSession, enc Encoder) Encoder {
 
 func GCMDecoder(session *GCMSession, dec Decoder) Decoder {
 	return func(r io.Reader, buf []byte) (int, error) {
-		if _, err := session.wRand.Read(session.rBuf); err != nil {
-			return 0, fmt.Errorf("generating randomness: %v", err)
-		}
+		// if _, err := session.wRand.Read(session.rBuf); err != nil {
+		// 	return 0, fmt.Errorf("generating randomness: %v", err)
+		// }
 
 		n, err := dec(r, buf)
 		if err != nil {
 			return n, fmt.Errorf("decoding data: %v", err)
 		}
-		decrypted, err := session.gcm.Open(nil, session.rBuf, buf[:n], nil)
+		decrypted, err := session.gcm.Open(nil, buf[:12], buf[12:n], nil)
 		if err != nil {
 			return 0, fmt.Errorf("opening sealed data: %v", err)
 		}

@@ -15,7 +15,7 @@ var (
 )
 
 type Callbacks struct {
-	DidReceiveMessage func(remote id.Signatory, msg Message)
+	DidReceiveMessage func(peer *Peer, remote id.Signatory, msg Message)
 }
 
 type Options struct {
@@ -47,7 +47,7 @@ func DefaultOptions() Options {
 		Encoder:         DefaultEncoder,
 		Decoder:         DefaultDecoder,
 		Callbacks: Callbacks{
-			DidReceiveMessage: func(id.Signatory, Message) {},
+			DefaultDidReceiveMessage,
 		},
 	}
 }

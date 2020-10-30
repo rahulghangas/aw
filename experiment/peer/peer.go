@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/renproject/aw/dht"
 	"net"
 	"time"
 
@@ -29,6 +30,7 @@ type Peer struct {
 	opts  Options
 	pool  *channel.Pool
 	table Table
+	contentTable dht.ContentResolver
 }
 
 func New(opts Options, table Table) *Peer {
@@ -36,6 +38,7 @@ func New(opts Options, table Table) *Peer {
 		opts:  opts,
 		pool:  channel.NewPool(channel.DefaultPoolOptions()),
 		table: table,
+		contentTable: dht.NewDoubleCacheContentResolver(dht.DefaultDoubleCacheContentResolverOptions(), nil),
 	}
 }
 
@@ -45,6 +48,18 @@ func (p *Peer) ID() id.Signatory {
 
 func (p *Peer) Table() Table {
 	return p.table
+}
+
+func (p *Peer) Options() *Options {
+	return &p.opts
+}
+
+func (p *Peer) MessageLogBook() dht.ContentResolver {
+	return p.contentTable
+}
+
+func (p *Peer) Pool() *channel.Pool {
+	return p.pool
 }
 
 // Ping initiates a round of peer discovery in the network. The peer will
@@ -64,7 +79,7 @@ func (p *Peer) Send(ctx context.Context, remote id.Signatory, msg Message) error
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	channel, ok := p.pool.Channel(remote)
+	ch, ok := p.pool.Channel(remote)
 	if !ok {
 		go p.dial(context.Background(), remoteAddr, &msg)
 		return nil
@@ -75,15 +90,35 @@ func (p *Peer) Send(ctx context.Context, remote id.Signatory, msg Message) error
 		return fmt.Errorf("marshal: %v", err)
 	}
 
-	if _, err := channel.Write(data); err != nil {
+	if _, err := ch.Write(data); err != nil {
 		return fmt.Errorf("write: %v", err)
 	}
 
 	return nil
 }
 
-func (p *Peer) Gossip(ctx context.Context, subnet id.Hash, msg Message) error {
-	panic("unimplemented")
+func (p *Peer) Gossip(ctx context.Context, subnet id.Hash, data []byte) {
+	sig := id.Signatory(subnet)
+	hash := id.NewHash(data)
+	p.contentTable.Insert(hash, uint8(Push), data)
+	msg := Message{Variant: Push, Data: hash[:]}
+
+	if _, ok := p.table.PeerAddress(sig); ok {
+		if err := p.Send(ctx, sig, msg); err != nil {
+			p.opts.Logger.Error("gossip", zap.Error(err))
+		}
+		return
+	}
+
+	p.broadcast(ctx, subnet, msg)
+}
+
+func (p *Peer) broadcast(ctx context.Context, subnet id.Hash, msg Message) {
+	for _, sig := range p.table.All() {
+		if err := p.Send(ctx, sig, msg); err != nil {
+			p.opts.Logger.Error("gossip", zap.Error(err))
+		}
+	}
 }
 
 // Run the peer until the context is done. If running encounters an error, or
@@ -123,6 +158,10 @@ func (p *Peer) run(ctx context.Context) {
 				return
 			}
 
+			if _, ok := p.table.PeerAddress(remote); !ok {
+				p.table.AddPeer(remote, conn.RemoteAddr().String())
+			}
+
 			buf := [1024 * 1024]byte{}
 			for {
 				n, err := dec(conn, buf[:])
@@ -137,31 +176,27 @@ func (p *Peer) run(ctx context.Context) {
 					return
 				}
 
-				p.opts.Callbacks.DidReceiveMessage(remote, msg)
+				p.opts.Callbacks.DidReceiveMessage(p, remote, msg)
 			}
 
 		},
 		func(err error) {
 			p.opts.Logger.Error("listen", zap.Error(err))
 		},
-		nil)
+		ReuseConn(p))
 }
 
 func (p *Peer) dial(ctx context.Context, remoteAddr string, msg *Message) error {
-	println("Start dialing")
 	var closureErr error
 	self := p.opts.PrivKey.Signatory()
 	h := p.pool.HighestPeerWinsHandshake(
 		self,
 		p.opts.ClientHandshake,
 	)
-	println("attempt to dial")
 	err := tcp.Dial(
 		ctx,
 		remoteAddr,
 		func(conn net.Conn) {
-			println("Dial handler")
-			println("Handshake complete!")
 			enc, dec, remote, err := h(conn, p.opts.Encoder, p.opts.Decoder)
 			if err != nil {
 				closureErr = err
@@ -173,7 +208,6 @@ func (p *Peer) dial(ctx context.Context, remoteAddr string, msg *Message) error 
 				return
 			}
 
-			println("Sending message")
 			_, closureErr = enc(conn, data)
 
 			buf := [1024 * 1024]byte{}
@@ -190,7 +224,7 @@ func (p *Peer) dial(ctx context.Context, remoteAddr string, msg *Message) error 
 					return
 				}
 
-				p.opts.Callbacks.DidReceiveMessage(remote, msg)
+				p.opts.Callbacks.DidReceiveMessage(p, remote, msg)
 			}
 		},
 		func(err error) {
@@ -201,7 +235,27 @@ func (p *Peer) dial(ctx context.Context, remoteAddr string, msg *Message) error 
 		return fmt.Errorf("dialing %v: %v", remoteAddr, err)
 	}
 
-	println("finish dialing")
-
 	return closureErr
+}
+
+var ErrConnectionToAddrExists = errors.New("connection to remote IP address already exists")
+
+func ReuseConn(p *Peer) policy.Allow {
+	return func(conn net.Conn) (error, policy.Cleanup) {
+		remoteAddr := ""
+		if tcpAddr, ok := conn.RemoteAddr().(*net.TCPAddr); ok {
+			remoteAddr = tcpAddr.IP.String()
+		} else {
+			remoteAddr = conn.RemoteAddr().String()
+		}
+
+		sig, ok := p.Table().PeerID(remoteAddr)
+		if ok {
+			return ErrConnectionToAddrExists, nil
+		}
+		return nil, func() {
+			p.Table().DeletePeer(sig)
+			p.Pool().Close(sig)
+		}
+	}
 }
