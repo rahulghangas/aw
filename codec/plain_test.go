@@ -2,7 +2,7 @@ package codec_test
 
 import (
 	"bytes"
-	"github.com/renproject/aw/codec"
+	"github.com/rahulghangas/aw/codec"
 	"io"
 
 	. "github.com/onsi/ginkgo"

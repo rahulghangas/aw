@@ -3,10 +3,10 @@ package peer_test
 import (
 	"context"
 	"fmt"
-	"github.com/renproject/aw/peer"
+	"github.com/rahulghangas/aw/peer"
 	"time"
 
-	"github.com/renproject/aw/wire"
+	"github.com/rahulghangas/aw/wire"
 	"github.com/renproject/id"
 
 	. "github.com/onsi/ginkgo"

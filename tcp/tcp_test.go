@@ -7,8 +7,8 @@ import (
 	"net"
 	"time"
 
-	"github.com/renproject/aw/policy"
-	"github.com/renproject/aw/tcp"
+	"github.com/rahulghangas/aw/policy"
+	"github.com/rahulghangas/aw/tcp"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

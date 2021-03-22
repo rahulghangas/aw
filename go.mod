@@ -1,4 +1,4 @@
-module github.com/renproject/aw
+module github.com/rahulghangas/aw
 
 go 1.12
 

@@ -6,8 +6,8 @@ import (
 	"net"
 	"sync"
 
-	"github.com/renproject/aw/codec"
-	"github.com/renproject/aw/wire"
+	"github.com/rahulghangas/aw/codec"
+	"github.com/rahulghangas/aw/wire"
 	"github.com/renproject/id"
 
 	"go.uber.org/zap"

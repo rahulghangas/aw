@@ -2,14 +2,14 @@ package dht_test
 
 import (
 	"fmt"
-	"github.com/renproject/aw/wire"
+	"github.com/rahulghangas/aw/wire"
 	"math/rand"
 	"strconv"
 	"testing/quick"
 	"time"
 
-	"github.com/renproject/aw/dht"
-	"github.com/renproject/aw/dht/dhtutil"
+	"github.com/rahulghangas/aw/dht"
+	"github.com/rahulghangas/aw/dht/dhtutil"
 	"github.com/renproject/id"
 
 	. "github.com/onsi/ginkgo"

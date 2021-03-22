@@ -6,9 +6,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/renproject/aw/channel"
-	"github.com/renproject/aw/transport"
-	"github.com/renproject/aw/wire"
+	"github.com/rahulghangas/aw/channel"
+	"github.com/rahulghangas/aw/transport"
+	"github.com/rahulghangas/aw/wire"
 	"github.com/renproject/id"
 	"go.uber.org/zap"
 )

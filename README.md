@@ -1,9 +1,9 @@
 # `🌪 airwave`
 
-[![GoDoc](https://godoc.org/github.com/renproject/aw?status.svg)](https://godoc.org/github.com/renproject/aw)
-![](https://github.com/renproject/aw/workflows/go/badge.svg)
-![Go Report](https://goreportcard.com/badge/github.com/renproject/aw)
-[![Coverage Status](https://coveralls.io/repos/github/renproject/aw/badge.svg?branch=master)](https://coveralls.io/github/renproject/aw?branch=master)
+[![GoDoc](https://godoc.org/github.com/rahulghangas/aw?status.svg)](https://godoc.org/github.com/rahulghangas/aw)
+![](https://github.com/rahulghangas/aw/workflows/go/badge.svg)
+![Go Report](https://goreportcard.com/badge/github.com/rahulghangas/aw)
+[![Coverage Status](https://coveralls.io/repos/github/rahulghangas/aw/badge.svg?branch=master)](https://coveralls.io/github/rahulghangas/aw?branch=master)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
 A flexible P2P networking library for upgradable distributed systems. The core mission of `airwave` is to provide a simple P2P interface that can support a wide variety of different algorithms, with a focus on backwards compatible. The P2P interface supports:

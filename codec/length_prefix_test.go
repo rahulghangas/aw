@@ -4,7 +4,7 @@ import (
 	"bytes"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/renproject/aw/codec"
+	"github.com/rahulghangas/aw/codec"
 )
 
 var _ = Describe("Length Prefix Codec", func() {

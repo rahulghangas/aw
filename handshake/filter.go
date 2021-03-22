@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/renproject/aw/codec"
+	"github.com/rahulghangas/aw/codec"
 	"github.com/renproject/id"
 )
 

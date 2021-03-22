@@ -7,13 +7,13 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/renproject/aw/dht"
+	"github.com/rahulghangas/aw/dht"
 
-	"github.com/renproject/aw/channel"
-	"github.com/renproject/aw/handshake"
-	"github.com/renproject/aw/peer"
-	"github.com/renproject/aw/transport"
-	"github.com/renproject/aw/wire"
+	"github.com/rahulghangas/aw/channel"
+	"github.com/rahulghangas/aw/handshake"
+	"github.com/rahulghangas/aw/peer"
+	"github.com/rahulghangas/aw/transport"
+	"github.com/rahulghangas/aw/wire"
 	"github.com/renproject/id"
 	"go.uber.org/zap"
 )

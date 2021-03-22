@@ -7,10 +7,10 @@ import (
 	"go.uber.org/zap"
 	"time"
 
-	"github.com/renproject/aw/dht"
-	"github.com/renproject/aw/peer"
-	"github.com/renproject/aw/transport"
-	"github.com/renproject/aw/wire"
+	"github.com/rahulghangas/aw/dht"
+	"github.com/rahulghangas/aw/peer"
+	"github.com/rahulghangas/aw/transport"
+	"github.com/rahulghangas/aw/wire"
 	"github.com/renproject/id"
 
 	. "github.com/onsi/ginkgo"

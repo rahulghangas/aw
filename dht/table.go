@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/renproject/aw/wire"
+	"github.com/rahulghangas/aw/wire"
 	"github.com/renproject/id"
 )
 
