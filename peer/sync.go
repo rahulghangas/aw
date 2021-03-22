@@ -151,12 +151,14 @@ func (syncer *Syncer) DidReceiveMessage(from id.Signatory, msg wire.Msg) error {
 		if syncer.filter.Filter(from, msg) {
 			return nil
 		}
-		syncer.pendingMu.Lock()
-		pending, ok := syncer.pending[string(msg.Data)]
-		if ok && msg.SyncData != nil {
-			pending.signal(msg.SyncData)
-		}
-		syncer.pendingMu.Unlock()
+		go func() {
+			syncer.pendingMu.Lock()
+			pending, ok := syncer.pending[string(msg.Data)]
+			if ok && msg.SyncData != nil {
+				pending.signal(msg.SyncData)
+			}
+			syncer.pendingMu.Unlock()
+		}()
 	}
 	return nil
 }
