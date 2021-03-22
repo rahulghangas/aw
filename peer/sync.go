@@ -113,7 +113,7 @@ func (syncer *Syncer) Sync(ctx context.Context, contentID []byte, hint *id.Signa
 	// Get addresses close to our address. We will iterate over these addresses
 	// in order and attempt to synchronise content by sending them pull
 	// messages.
-	peers := syncer.transport.Table().RandomPeers(syncer.opts.Alpha)
+	peers := syncer.transport.Table().Peers(syncer.opts.Alpha)
 	if hint != nil {
 		peers = append([]id.Signatory{*hint}, peers...)
 	}
@@ -151,14 +151,14 @@ func (syncer *Syncer) DidReceiveMessage(from id.Signatory, msg wire.Msg) error {
 		if syncer.filter.Filter(from, msg) {
 			return nil
 		}
-		go func() {
-			syncer.pendingMu.Lock()
-			pending, ok := syncer.pending[string(msg.Data)]
-			if ok && msg.SyncData != nil {
-				pending.signal(msg.SyncData)
-			}
-			syncer.pendingMu.Unlock()
-		}()
+
+		syncer.pendingMu.Lock()
+		pending, ok := syncer.pending[string(msg.Data)]
+		if ok && msg.SyncData != nil {
+			pending.signal(msg.SyncData)
+		}
+		syncer.pendingMu.Unlock()
+
 	}
 	return nil
 }
